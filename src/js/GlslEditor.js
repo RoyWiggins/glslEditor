@@ -29,24 +29,23 @@ precision mediump float;
 #endif
 
 uniform vec2 u_resolution;
-uniform vec2 u_mouse;
+uniform vec3 u_mouse;
 uniform float u_time;
+uniform sampler2D u_tex0;
 
 void main() {
     vec2 st = gl_FragCoord.xy/u_resolution.xy;
     st.x *= u_resolution.x/u_resolution.y;
-
-    st += vec2(.0);
-    vec3 color = vec3(1.);
-    color = vec3(st.x,st.y,abs(sin(u_time)));
-
+    st += vec2(.0);    
+    vec3 color = vec3(u_mouse.xy/u_resolution.xy,u_mouse.z);
+    color = color * 0.5 + texture2D(u_tex0,st).xyz;
     gl_FragColor = vec4(color,1.0);
-}`;
+}
+`;
 
 export default class GlslEditor {
     constructor (selector, options) {
         subscribeMixin(this);
-
         if (typeof selector === 'object' && selector.nodeType && selector.nodeType === 1) {
             this.container = selector;
         }
@@ -69,14 +68,12 @@ export default class GlslEditor {
         if (!this.options.imgs) {
             this.options.imgs = [];
         }
-
         if (this.container.hasAttribute('data-textures')) {
-            let imgList = this.container.getAttribute('data-textures').split(',');
-            for (let i in imgList) {
-                this.options.imgs.push(imgList[i]);
+            let textures = this.container.getAttribute('data-textures').split(',');
+            for (let t in textures) {
+                this.options.imgs.push(textures[t]);
             }
         }
-
         // Default Theme
         if (!this.options.theme) {
             this.options.theme = 'default';
@@ -131,9 +128,10 @@ export default class GlslEditor {
 
         // EVENTS
         this.editor.on('change', () => {
-           this.shader.canvas.load(this.options.frag_header + this.editor.getValue() + this.options.frag_footer);
+            if (this.autoupdate)
+               this.update();
         });
-
+        
         if (this.options.canvas_follow) {
             this.shader.el.style.position = 'relative';
             this.shader.el.style.float = 'right';
@@ -238,7 +236,33 @@ export default class GlslEditor {
             }
         }
     }
-
+    openTexture(file){
+        if (file.type === "image/gif") {
+            var gifNode = document.getElementById("image");
+            var fileURL = URL.createObjectURL(file);
+            gifNode.src = ""; // Without this, gifs don't start animating (???).
+            gifNode.src = fileURL;
+            glslEditor.shader.canvas.loadTexture("u_tex0",gifNode);
+        } else if (file.type.split("/")[0] === "video") {
+            var fileURL = URL.createObjectURL(file);
+            var videoNode = document.createElement("video");
+            videoNode.src = fileURL;
+            videoNode.muted = true;
+            videoNode.loop = true;
+            videoNode.play();
+            glslEditor.shader.canvas.loadTexture("u_tex0",videoNode);
+            glslEditor.update();
+        } else {
+            var reader = new FileReader();
+            reader.onload = (theFile) => {
+              return (e) => {
+                glslEditor.shader.canvas.loadTexture("u_tex0",e.target.result);
+                glslEditor.update();
+              };
+            }(file);
+            reader.readAsDataURL(file);
+        }
+    }
     getContent() {
         return this.editor.getValue();
     }
@@ -282,7 +306,7 @@ export default class GlslEditor {
         }
     }
 
-    download () {
+    download() {
         let content = this.getContent();
         let name = this.getTitle();
         if (name !== '') {

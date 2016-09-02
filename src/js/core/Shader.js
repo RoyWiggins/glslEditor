@@ -4,6 +4,7 @@ import { subscribeInteractiveDom } from '../tools/interactiveDom';
 export default class Shader {
     constructor (main) {
         this.options = main.options;
+        console.log(this.options);
         this.container = main.container;
 
         // CREATE AND START GLSLCANVAS
@@ -18,7 +19,7 @@ export default class Shader {
         this.container.appendChild(this.el);
         this.canvas = new GlslCanvas(this.el, { premultipliedAlpha: false, preserveDrawingBuffer: true, backgroundColor: 'rgba(1,1,1,1)' });
         
-        
+        console.log(this.options.imgs);
         if (this.options.imgs.length > 0) {
             for (let i in this.options.imgs) {
                 this.canvas.setUniform('u_tex' + i, this.options.imgs[i]);

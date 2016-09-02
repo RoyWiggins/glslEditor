@@ -27,6 +27,17 @@ export default class Menu {
             this.fileInput.click();
         });
 
+        this.texInput = document.createElement('input');
+        this.texInput.setAttribute('type', 'file');
+        this.texInput.style.display = 'none';
+        this.texInput.addEventListener('change', (event) => {
+            main.openTexture(event.target.files[0]);
+        });
+
+        this.menus.openTexture = new MenuItem(this.el, 'ge_menu', '&#8681; Texture', (event) => {
+            this.texInput.click();
+        });
+
         // SHARE
         this.menus.share = new MenuItem(this.el, 'ge_menu', '&#8682; Export', (event) => {
             if (main.change || !this.exportModal) {
