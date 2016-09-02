@@ -29,6 +29,7 @@ export default class Menu {
 
         this.texInput = document.createElement('input');
         this.texInput.setAttribute('type', 'file');
+        this.texInput.setAttribute('accept', 'image/*|video/*');
         this.texInput.style.display = 'none';
         this.texInput.addEventListener('change', (event) => {
             main.openTexture(event.target.files[0]);

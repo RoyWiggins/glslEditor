@@ -17,21 +17,24 @@
 		</style>
 	</head>
 	<body>
-		<div id="glsl_editor"></div>
+		<div id="glsl_editor" data-textures="./data/logo.jpg"></div>
+    <img id="image" width="1px" height="1px" />
 	</body>
+<style>
 
+</style>
 	<link type="text/css" rel="stylesheet" href="build/glslEditor.css">
     <script type="text/javascript" src="build/glslEditor.js"></script>
     <script type="text/javascript">
     	window.glslEditor = new GlslEditor('#glsl_editor', { 
     		canvas_size: 500,
-            canvas_draggable: true,
-            canvas_resizable: true,
+        canvas_draggable: true,
+        canvas_resizable: true,
     		theme: 'monokai',
     		multipleBuffers: true,
-            watchHash: true,
-            fileDrops: true,
-    		menu: true
+        watchHash: true,
+        fileDrops: true,
+    		menu: true,
     	});
         document.body.style.backgroundColor = window.getComputedStyle(glslEditor.editor.getWrapperElement(),null).getPropertyValue('background-color'); 
     </script>
